@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, FileUp, HeartPulse, ShieldCheck, Stethoscope, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -32,6 +32,23 @@ export default function Register() {
   const steps = role === 'patient' ? PATIENT_STEPS : DOCTOR_STEPS;
 
   const go = (dir: 1 | -1) => setStep((s) => Math.min(Math.max(s + dir, 0), steps.length - 1));
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  const handleNext = () => {
+    // Clear previous error
+    setError('');
+    // When patient is on the Emergency step (phone input), validate phone before proceeding
+    if (role === 'patient' && step === 2 && formRef.current) {
+      const data = new FormData(formRef.current);
+      const phoneRaw = String(data.get('phone') || '');
+      const digits = phoneRaw.replace(/\D/g, '');
+      if (digits.length !== 10) {
+        setError('Phone number must be exactly 10 digits.');
+        return;
+      }
+    }
+    go(1);
+  };
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,6 +68,17 @@ export default function Register() {
         confirmPassword: String(data.get('confirmPassword') || ''),
         phone: String(data.get('phone') || '') || undefined
       };
+      // Validate phone: normalize to digits and require exactly 10 digits when provided
+      if (base.phone) {
+        const digits = base.phone.replace(/\D/g, '');
+        if (digits.length !== 10) {
+          setError('Phone number must be exactly 10 digits.');
+          setLoading(false);
+          return;
+        }
+        // store normalized phone
+        base.phone = digits;
+      }
       if (role === 'patient') {
         await registerPatient({
           ...base,
@@ -202,7 +230,7 @@ export default function Register() {
               </div>
             )}
 
-            <form onSubmit={submit}>
+            <form onSubmit={submit} ref={formRef}>
               <div className={cn(step === 0 ? 'block' : 'hidden')}>
                 <div className="space-y-4">
                   <Field label="Full name" required>
@@ -248,7 +276,15 @@ export default function Register() {
                   <div className={cn(step === 2 ? 'block' : 'hidden')}>
                     <div className="space-y-4">
                       <Field label="Phone (for appointment reminders)">
-                        <Input type="tel" name="phone" className={inputCls} placeholder="98XXXXXXXX" />
+                        <Input
+                          type="tel"
+                          name="phone"
+                          className={inputCls}
+                          placeholder="98XXXXXXXX"
+                          maxLength={10}
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                        />
                       </Field>
                       <Field label="Allergies" hint="Comma separated, e.g. penicillin, nuts">
                         <Input name="allergies" className={inputCls} placeholder="e.g. penicillin, latex" />
@@ -381,17 +417,17 @@ export default function Register() {
                 <Button type="button" variant="ghost" onClick={() => go(-1)} disabled={step === 0} className="items-center gap-1.5">
                   <ArrowLeft className="h-4 w-4" /> Back
                 </Button>
-                <Button type="submit" size="lg" loading={loading}>
-                  {step < steps.length - 1 ? (
-                    <>
-                      Continue <ArrowRight className="h-4 w-4" />
-                    </>
-                  ) : (
+                {step < steps.length - 1 ? (
+                  <Button type="button" size="lg" onClick={handleNext} disabled={loading} className="items-center gap-1.5">
+                    Continue <ArrowRight className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button type="submit" size="lg" loading={loading}>
                     <>
                       <Check className="h-4 w-4" /> {role === 'patient' ? 'Create my account' : 'Create doctor account'}
                     </>
-                  )}
-                </Button>
+                  </Button>
+                )}
               </div>
             </form>
 
