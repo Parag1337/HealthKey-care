@@ -56,7 +56,7 @@ export const DoctorOverviewPage = () => {
     try {
       const [r, p, a] = await Promise.all([
         accessAPI.getDoctorRequests(),
-        prescriptionsAPI.getMyPrescriptions(),
+        prescriptionsAPI.getDoctorPrescriptions(),
         auditAPI.getMyAudit()
       ]);
       setRequests(r.data);
@@ -94,7 +94,7 @@ export const DoctorOverviewPage = () => {
           <h1 className="page-title">Doctor Overview</h1>
           <p className="page-subtitle">Manage patient access requests and monitor activity.</p>
         </div>
-        <Link to="/doctor/qr">
+        <Link to="/doctor/my-qr">
           <Button variant="outline" size="sm">
             <QrCode className="h-4 w-4" /> My HealthKey QR
           </Button>

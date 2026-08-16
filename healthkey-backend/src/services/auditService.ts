@@ -8,6 +8,8 @@ export type AuditAction =
   | 'access_revoked'
   | 'document_uploaded'
   | 'document_viewed'
+  | 'document_downloaded'
+  | 'document_deleted'
   | 'prescription_created'
   | 'appointment_booked'
   | 'appointment_cancelled'

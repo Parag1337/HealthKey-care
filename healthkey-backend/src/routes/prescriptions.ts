@@ -110,4 +110,15 @@ router.get('/my', auth, authorize('patient'), async (req: AuthRequest, res) => {
   }
 });
 
+router.get('/doctor/my', auth, authorize('doctor'), async (req: AuthRequest, res) => {
+  try {
+    const prescriptions = await Prescription.find({ doctorId: req.user!._id })
+      .populate('patientId', 'name email')
+      .sort({ createdAt: -1 });
+    res.json(prescriptions);
+  } catch (err: any) {
+    res.status(500).json({ message: 'Could not load prescriptions.' });
+  }
+});
+
 export default router;

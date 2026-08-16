@@ -22,7 +22,7 @@ import {
 
 export type { DoctorRegisterPayload, PatientRegisterPayload } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const api = axios.create({
   baseURL: API_URL
@@ -58,7 +58,21 @@ api.interceptors.response.use(
 
 export function getErrorMessage(error: unknown, fallback = 'Something went wrong. Please try again.'): string {
   if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { message?: string } | undefined;
+    const data = error.response?.data as
+      | { message?: string; fieldErrors?: Record<string, string> }
+      | undefined;
+    const firstFieldError = data?.fieldErrors ? Object.values(data.fieldErrors)[0] : undefined;
+    if (firstFieldError) return firstFieldError;
+    if (
+      error.response?.status === 401 &&
+      /session|token|expired|sign in/i.test(data?.message || '') &&
+      !error.config?.url?.includes('/auth/login')
+    ) {
+      return 'Your session has expired. Please sign in again.';
+    }
+    if (error.response?.status === 403 && data?.message === 'Not authorized to access this route') {
+      return 'You do not have permission to access this page.';
+    }
     if (data?.message) return data.message;
     if (error.code === 'ERR_NETWORK') {
       return 'Cannot reach the server. Check your connection and try again.';
@@ -153,8 +167,12 @@ export const recordsAPI = {
   getMyRecords: () => api.get<MedicalRecord[]>('/records/my'),
   getPatientRecords: (patientId: string) => api.get<MedicalRecord[]>(`/records/patient/${patientId}`),
   getRecord: (id: string) => api.get<MedicalRecord>(`/records/${id}`),
-  getFileBlob: (id: string) =>
-    api.get<Blob>(`/records/${id}/file`, { responseType: 'blob' }),
+  getFileBlob: (id: string, download = false) =>
+    api.get<Blob>(`/records/${id}/file`, {
+      params: download ? { download: 1 } : {},
+      responseType: 'blob'
+    }),
+  deleteRecord: (id: string) => api.delete<{ message: string }>(`/records/${id}`),
   getDigest: (id: string) =>
     api.get<{ matches: boolean; storedHash: string; currentHash: string; transaction: BlockchainTx | null }>(
       `/records/${id}/digest`
@@ -193,6 +211,7 @@ export const prescriptionsAPI = {
     notes?: string;
   }) => api.post<Prescription>('/prescriptions/create', data),
   getMyPrescriptions: () => api.get<Prescription[]>('/prescriptions/my'),
+  getDoctorPrescriptions: () => api.get<Prescription[]>('/prescriptions/doctor/my'),
   getPatientPrescriptions: (patientId: string) => api.get<Prescription[]>(`/prescriptions/patient/${patientId}`)
 };
 

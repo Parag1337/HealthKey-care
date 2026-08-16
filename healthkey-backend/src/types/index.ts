@@ -88,10 +88,16 @@ export interface IDoctorProfile {
   verificationDocs: {
     kind: 'registration_certificate' | 'degree' | 'identity';
     originalFilename: string;
-    storedFilename: string;
+    storedFilename?: string;
     mimeType: string;
     fileSize: number;
     uploadedAt: Date;
+    cloudinaryPublicId?: string;
+    cloudinaryAssetId?: string;
+    cloudinaryResourceType?: string;
+    cloudinaryVersion?: string;
+    cloudinaryFormat?: string;
+    cloudinaryBytes?: number;
   }[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -149,6 +155,12 @@ export interface IMedicalRecord {
   storedFilename: string;
   mimeType: string;
   fileSize: number;
+  cloudinaryPublicId?: string;
+  cloudinaryAssetId?: string;
+  cloudinaryResourceType?: string;
+  cloudinaryVersion?: string;
+  cloudinaryFormat?: string;
+  cloudinaryBytes?: number;
   description?: string;
   recordDate?: Date;
   sha256Hash: string;

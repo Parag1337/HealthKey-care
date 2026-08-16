@@ -57,6 +57,14 @@ app.use((req: Request, res: Response) => {
 });
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err?.name === 'MulterError') {
+    return res.status(err.code === 'LIMIT_FILE_SIZE' ? 413 : 400).json({
+      message:
+        err.code === 'LIMIT_FILE_SIZE'
+          ? 'This file is larger than the 10 MB limit.'
+          : 'Upload failed. Please try again.'
+    });
+  }
   if (err?.type === 'entity.too.large') {
     return res.status(413).json({ message: 'Request body too large.' });
   }

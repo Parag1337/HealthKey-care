@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FileClock, FileText, Lock, ShieldCheck, ScrollText } from 'lucide-react';
+import { Download, FileClock, FileText, Lock, ShieldCheck, ScrollText, Trash2 } from 'lucide-react';
 import { auditAPI, getErrorMessage } from '../../lib/api';
 import { AuditEvent } from '../../types';
 import { Card, CardContent } from '../../components/ui/Card';
@@ -11,6 +11,8 @@ import { formatDateTime } from '../../lib/format';
 const ACTION_META: Record<string, { label: string; icon: React.ReactNode; variant: 'success' | 'warning' | 'danger' | 'info' | 'neutral' }> = {
   document_uploaded: { label: 'Document uploaded', icon: <FileText className="h-4 w-4" />, variant: 'info' },
   document_viewed: { label: 'Document viewed', icon: <FileText className="h-4 w-4" />, variant: 'warning' },
+  document_downloaded: { label: 'Document downloaded', icon: <Download className="h-4 w-4" />, variant: 'warning' },
+  document_deleted: { label: 'Document deleted', icon: <Trash2 className="h-4 w-4" />, variant: 'danger' },
   access_requested: { label: 'Access requested', icon: <Lock className="h-4 w-4" />, variant: 'warning' },
   access_approved: { label: 'Access approved', icon: <ShieldCheck className="h-4 w-4" />, variant: 'success' },
   access_denied: { label: 'Access denied', icon: <Lock className="h-4 w-4" />, variant: 'danger' },

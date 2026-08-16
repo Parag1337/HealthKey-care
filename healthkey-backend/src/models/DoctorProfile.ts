@@ -5,10 +5,16 @@ export type DoctorVerificationStatus = 'pending' | 'verified' | 'suspended';
 export interface VerificationDoc {
   kind: 'registration_certificate' | 'degree' | 'identity';
   originalFilename: string;
-  storedFilename: string;
+  storedFilename?: string;
   mimeType: string;
   fileSize: number;
   uploadedAt: Date;
+  cloudinaryPublicId?: string;
+  cloudinaryAssetId?: string;
+  cloudinaryResourceType?: string;
+  cloudinaryVersion?: string;
+  cloudinaryFormat?: string;
+  cloudinaryBytes?: number;
 }
 
 export interface IDoctorProfileDoc {
@@ -73,7 +79,13 @@ const doctorProfileSchema = new Schema<IDoctorProfileDoc>(
           storedFilename: String,
           mimeType: String,
           fileSize: Number,
-          uploadedAt: { type: Date, default: Date.now }
+          uploadedAt: { type: Date, default: Date.now },
+          cloudinaryPublicId: String,
+          cloudinaryAssetId: String,
+          cloudinaryResourceType: String,
+          cloudinaryVersion: String,
+          cloudinaryFormat: String,
+          cloudinaryBytes: Number
         }
       ],
       default: []

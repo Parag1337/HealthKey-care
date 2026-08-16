@@ -34,7 +34,7 @@ export const DoctorPrescriptionsPage = () => {
     setLoading(true);
     setError('');
     try {
-      const [p, a] = await Promise.all([prescriptionsAPI.getMyPrescriptions(), accessAPI.getActive()]);
+      const [p, a] = await Promise.all([prescriptionsAPI.getDoctorPrescriptions(), accessAPI.getActive()]);
       setPrescriptions(p.data);
       setPatients(a.data);
     } catch (err) {

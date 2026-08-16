@@ -203,7 +203,6 @@ export default function Register() {
             )}
 
             <form onSubmit={submit}>
-              <input type="hidden" name="email" value="" />
               <div className={cn(step === 0 ? 'block' : 'hidden')}>
                 <div className="space-y-4">
                   <Field label="Full name" required>
@@ -276,7 +275,7 @@ export default function Register() {
                         <Input name="professionalTitle" defaultValue="Dr." className={inputCls} />
                       </Field>
                       <Field label="Specialization" required>
-                        <Input name="specialization" className={inputCls} required placeholder="e.g. Cardiology" />
+                        <Input name="specialization" className={inputCls} required={step === 1} placeholder="e.g. Cardiology" />
                       </Field>
                       <Field label="Qualifications" hint="Comma separated, e.g. MBBS, MD">
                         <Input name="qualifications" className={inputCls} placeholder="MBBS, MD" />

@@ -3,6 +3,9 @@ dist/
 .vite/
 .env
 .env.*
+!.env.example
+.cloudinary-sim/
+uploads/
 .DS_Store
 npm-debug.log*
 .agent/skills/

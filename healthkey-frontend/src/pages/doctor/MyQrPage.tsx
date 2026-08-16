@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Check, Copy, RefreshCw } from 'lucide-react';
 import QRCode from 'qrcode.react';
 import { doctorAPI, getErrorMessage } from '../../lib/api';
 import { QrCodeInfo } from '../../types';
@@ -12,13 +12,52 @@ import { useToast } from '../../components/ui/Toast';
 import { useAuth } from '../../context/AuthContext';
 import { formatDateTime } from '../../lib/format';
 
+async function copyText(text: string): Promise<boolean> {
+  const legacyCopy = () => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  };
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return legacyCopy();
+    }
+  }
+  return legacyCopy();
+}
+
 export const MyQrPage = () => {
   const { user } = useAuth();
   const [qr, setQr] = useState<QrCodeInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [confirmRegen, setConfirmRegen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<number | null>(null);
   const { success, error: toastError } = useToast();
+
+  const clearCopyTimer = () => {
+    if (copyTimer.current) {
+      window.clearTimeout(copyTimer.current);
+      copyTimer.current = null;
+    }
+  };
+
+  useEffect(() => clearCopyTimer, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -37,8 +76,23 @@ export const MyQrPage = () => {
     load();
   }, [load]);
 
+  const handleCopy = async () => {
+    if (!qr) return;
+    const ok = await copyText(qr.payload);
+    if (!ok) {
+      toastError("Couldn't copy the link. Please copy it manually.");
+      return;
+    }
+    setCopied(true);
+    success('Doctor access link copied to clipboard.');
+    clearCopyTimer();
+    copyTimer.current = window.setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleRegenerate = async () => {
     try {
+      clearCopyTimer();
+      setCopied(false);
       const res = await doctorAPI.regenerateQr();
       setQr(res.data);
       success('QR code regenerated. The previous code no longer works.');
@@ -71,6 +125,10 @@ export const MyQrPage = () => {
               />
             )}
           </div>
+          <Button onClick={handleCopy} className="w-full max-w-xs" disabled={!qr}>
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? 'Link Copied' : 'Copy QR Link'}
+          </Button>
           <div className="w-full space-y-1.5 text-center">
             <p className="text-base font-semibold text-ink-800">{user?.name}</p>
             <p className="text-xs text-ink-500">

@@ -134,16 +134,21 @@ export const blockchainService: BlockchainService = {
     if (!record) {
       throw new Error('Document not found');
     }
-    if (!record.storedFilename || !record.sha256Hash) {
+    if (!record.cloudinaryPublicId || !record.sha256Hash) {
       return { matches: false, storedHash: '', currentHash: '' };
     }
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const filePath = path.join(process.cwd(), 'uploads', record.storedFilename);
-    let currentHash = '';
+    const { getAssetBytes } = await import('./cloudinary.js');
+    let currentHash = 'UNAVAILABLE';
     try {
-      const data = await fs.readFile(filePath);
-      currentHash = crypto.createHash('sha256').update(data).digest('hex');
+      const buf = await getAssetBytes({
+        publicId: record.cloudinaryPublicId,
+        assetId: record.cloudinaryAssetId || '',
+        resourceType: (record.cloudinaryResourceType === 'raw' ? 'raw' : 'image') as 'image' | 'raw',
+        version: record.cloudinaryVersion || '0',
+        format: record.cloudinaryFormat || '',
+        bytes: record.cloudinaryBytes || record.fileSize
+      });
+      currentHash = crypto.createHash('sha256').update(buf).digest('hex');
     } catch {
       currentHash = 'UNAVAILABLE';
     }

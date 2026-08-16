@@ -22,5 +22,10 @@ export const env = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '30d',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
   qrTokenTtlHours: readInt('QR_TOKEN_TTL_HOURS', 168),
-  maxUploadBytes: readInt('MAX_UPLOAD_BYTES', 10 * 1024 * 1024)
+  maxUploadBytes: readInt('MAX_UPLOAD_BYTES', 10 * 1024 * 1024),
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME?.trim() || '',
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY?.trim() || '',
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET?.trim() || '',
+  cloudinarySimulation: process.env.CLOUDINARY_SIMULATION === 'true',
+  cloudinarySimFailUploads: process.env.CLOUDINARY_SIM_FAIL_UPLOADS === 'true'
 };

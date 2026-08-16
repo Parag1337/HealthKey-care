@@ -1,24 +1,39 @@
 import express from 'express';
+import { createHash } from 'crypto';
 import MedicalRecord from '../models/MedicalRecord.js';
 import { auth, AuthRequest } from '../middleware/auth.js';
 import { requireRecordAccess } from '../middleware/access.js';
 import { blockchainService } from '../services/blockchainService.js';
-import { sha256File } from '../services/fileService.js';
+import { getAssetBytes } from '../services/cloudinary.js';
 
 const router = express.Router();
 
 router.post('/verify/:recordId', auth, requireRecordAccess, async (req: AuthRequest, res) => {
   try {
     const record = req.record!;
-    const currentHash = await sha256File(record.storedFilename).catch(() => null);
+    let currentHash = 'UNAVAILABLE';
+    if (record.cloudinaryPublicId) {
+      try {
+        const buf = await getAssetBytes({
+          publicId: record.cloudinaryPublicId,
+          assetId: record.cloudinaryAssetId || '',
+          resourceType: (record.cloudinaryResourceType === 'raw' ? 'raw' : 'image') as 'image' | 'raw',
+          version: record.cloudinaryVersion || '0',
+          format: record.cloudinaryFormat || '',
+          bytes: record.cloudinaryBytes || record.fileSize
+        });
+        currentHash = createHash('sha256').update(buf).digest('hex');
+      } catch {
+        currentHash = 'UNAVAILABLE';
+      }
+    }
 
     const result = {
       recordId: String(record._id),
       title: record.title,
       storedHash: record.sha256Hash,
       currentHash: currentHash ?? 'UNAVAILABLE',
-      matches: currentHash === record.sha256Hash,
-      transaction: record.blockchainTxId
+      matches: currentHash === record.sha256Hash,      transaction: record.blockchainTxId
         ? await blockchainService.getTransaction(record.blockchainTxId)
         : null,
       uploadedAt: record.createdAt

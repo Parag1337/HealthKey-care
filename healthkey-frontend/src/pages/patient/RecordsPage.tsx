@@ -5,6 +5,8 @@ import { MedicalRecord } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { SkeletonList } from '../../components/ui/Skeleton';
 import { EmptyState, ErrorState } from '../../components/ui/Feedback';
+import { ConfirmDialog } from '../../components/ui/Modal';
+import { useToast } from '../../components/ui/Toast';
 import { UploadRecordModal } from '../../components/records/UploadRecordModal';
 import { RecordCard, RecordViewerModal, VerifyModal } from '../../components/records/RecordCard';
 
@@ -15,6 +17,8 @@ export const PatientRecordsPage = () => {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [viewing, setViewing] = useState<MedicalRecord | null>(null);
   const [verifying, setVerifying] = useState<MedicalRecord | null>(null);
+  const [deleting, setDeleting] = useState<MedicalRecord | null>(null);
+  const { success, error: toastError } = useToast();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -32,6 +36,18 @@ export const PatientRecordsPage = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    try {
+      await recordsAPI.deleteRecord(deleting._id);
+      success('Record deleted.');
+      setDeleting(null);
+      load();
+    } catch (err) {
+      toastError(getErrorMessage(err, "We couldn't delete the document. Please try again."));
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -64,6 +80,7 @@ export const PatientRecordsPage = () => {
               record={r}
               onView={setViewing}
               onVerify={setVerifying}
+              onDelete={setDeleting}
             />
           ))}
         </div>
@@ -72,6 +89,15 @@ export const PatientRecordsPage = () => {
       <UploadRecordModal open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={load} />
       <RecordViewerModal record={viewing} onClose={() => setViewing(null)} />
       <VerifyModal record={verifying} onClose={() => setVerifying(null)} />
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        onClose={() => setDeleting(null)}
+        onConfirm={confirmDelete}
+        title="Delete this record?"
+        message={`"${deleting?.title || 'This record'}" will be permanently removed from your documents. This cannot be undone.`}
+        confirmLabel="Delete"
+        danger
+      />
     </div>
   );
 };

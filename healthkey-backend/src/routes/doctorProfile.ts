@@ -5,7 +5,8 @@ import User from '../models/User.js';
 import DoctorProfile from '../models/DoctorProfile.js';
 import Availability from '../models/Availability.js';
 import { auth, AuthRequest, authorize } from '../middleware/auth.js';
-import { detectFileType, sanitizeFilename, storeUpload } from '../services/fileService.js';
+import { detectFileType, sanitizeFilename } from '../services/fileService.js';
+import * as cloudinaryService from '../services/cloudinary.js';
 import { env } from '../config/env.js';
 import { isZodError, zodErrorResponse } from '../utils/apiErrors.js';
 
@@ -35,7 +36,9 @@ function profileView(profile: any) {
       kind: d.kind,
       originalFilename: d.originalFilename,
       fileSize: d.fileSize,
-      uploadedAt: d.uploadedAt
+      mimeType: d.mimeType,
+      uploadedAt: d.uploadedAt,
+      hasAsset: Boolean(d.cloudinaryPublicId)
     }))
   };
 }
@@ -178,7 +181,15 @@ router.post(
           .json({ message: 'Unsupported file type. Upload a PDF or image (JPG, PNG, WEBP).' });
       }
       const originalFilename = sanitizeFilename(req.file.originalname || `verification.${detected.extension}`);
-      const { storedFilename } = await storeUpload(req.file.buffer, detected);
+
+      const asset = await cloudinaryService.uploadDocument({
+        buffer: req.file.buffer,
+        originalFilename,
+        mimeType: detected.mimeType,
+        extension: detected.extension,
+        patientId: String(req.user!._id),
+        folderOverride: `healthkey/doctor-verification/${req.user!._id}`
+      });
 
       const profile = await DoctorProfile.findOne({ userId: req.user!._id });
       if (!profile) {
@@ -188,10 +199,15 @@ router.post(
       const doc = {
         kind,
         originalFilename,
-        storedFilename,
         mimeType: detected.mimeType,
         fileSize: req.file.size,
-        uploadedAt: new Date()
+        uploadedAt: new Date(),
+        cloudinaryPublicId: asset.publicId,
+        cloudinaryAssetId: asset.assetId,
+        cloudinaryResourceType: asset.resourceType,
+        cloudinaryVersion: asset.version,
+        cloudinaryFormat: asset.format,
+        cloudinaryBytes: asset.bytes
       };
       if (existingSame >= 0) {
         profile.verificationDocs[existingSame] = doc;
@@ -206,5 +222,32 @@ router.post(
     }
   }
 );
+
+router.get('/verification-document/:kind/file', auth, authorize('doctor'), async (req: AuthRequest, res) => {
+  try {
+    const kind = z.enum(['registration_certificate', 'degree', 'identity']).safeParse(req.params.kind);
+    if (!kind.success) return res.status(400).json({ message: 'Unknown document kind.' });
+    const profile = await DoctorProfile.findOne({ userId: req.user!._id });
+    const doc = profile?.verificationDocs.find((d) => d.kind === kind.data && d.cloudinaryPublicId);
+    if (!doc || !doc.cloudinaryPublicId) {
+      return res.status(404).json({ message: 'Verification document not found.' });
+    }
+    const asset = {
+      publicId: doc.cloudinaryPublicId,
+      assetId: doc.cloudinaryAssetId || '',
+      resourceType: (doc.cloudinaryResourceType === 'raw' ? 'raw' : 'image') as 'image' | 'raw',
+      version: doc.cloudinaryVersion || '0',
+      format: doc.cloudinaryFormat || '',
+      bytes: doc.cloudinaryBytes || doc.fileSize
+    };
+    await cloudinaryService.streamAuthorizedAsset(asset, res, {
+      filename: doc.originalFilename,
+      download: req.query.download === '1',
+      mimeType: doc.mimeType
+    });
+  } catch (err: any) {
+    res.status(500).json({ message: 'Could not serve the document.' });
+  }
+});
 
 export default router;

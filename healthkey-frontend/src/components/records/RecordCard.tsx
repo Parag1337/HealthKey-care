@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileText, Eye, Loader2, ShieldCheck, ShieldAlert, Lock } from 'lucide-react';
+import { FileText, Eye, Download, Trash2, Loader2, ShieldCheck, ShieldAlert, Lock } from 'lucide-react';
 import { MedicalRecord, RECORD_CATEGORY_LABELS, VerificationResult } from '../../types';
 import { cn } from '../../lib/cn';
 import { Badge } from '../ui/Badge';
@@ -8,25 +8,69 @@ import { formatBytes, formatDate, formatDateTime, shortHash } from '../../lib/fo
 import { Modal } from '../ui/Modal';
 import { getErrorMessage, blockchainAPI, recordsAPI } from '../../lib/api';
 
+function useRecordDownload() {
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  const download = async (record: MedicalRecord) => {
+    if (downloading) return;
+    setDownloading(record._id);
+    try {
+      const res = await recordsAPI.getFileBlob(record._id, true);
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = record.originalFilename || `${record.title || 'document'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } catch {
+      // surface errors via the viewer; the download button stays safe
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  return { downloading, download };
+}
+
 export function RecordCard({
   record,
   onView,
-  onVerify
+  onVerify,
+  onDelete
 }: {
   record: MedicalRecord;
   onView?: (record: MedicalRecord) => void;
   onVerify?: (record: MedicalRecord) => void;
+  onDelete?: (record: MedicalRecord) => void;
 }) {
+  const { downloading, download } = useRecordDownload();
+  const { objectUrl, loading: previewLoading } = useRecordFile(record.mimeType?.startsWith('image/') ? record : null);
+  const isImage = record.mimeType?.startsWith('image/');
+
   return (
     <div className="rounded-2xl border border-ink-200 bg-white p-4 shadow-soft transition-colors hover:border-ink-300">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink-100 text-ink-500">
-            <FileText className="h-5 w-5" />
+            {isImage ? (
+              previewLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : objectUrl ? (
+                <img src={objectUrl} alt={record.title} className="h-10 w-10 rounded-lg object-cover" />
+              ) : (
+                <FileText className="h-5 w-5" />
+              )
+            ) : (
+              <FileText className="h-5 w-5" />
+            )}
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-ink-800">{record.title}</p>
-            <p className="mt-0.5 text-xs text-ink-400">{RECORD_CATEGORY_LABELS[record.category]}</p>
+            <p className="mt-0.5 text-xs text-ink-400">
+              {RECORD_CATEGORY_LABELS[record.category]} · {record.mimeType}
+            </p>
           </div>
         </div>
         <IntegrityBadge status={record.verificationStatus} />
@@ -36,16 +80,24 @@ export function RecordCard({
         <span>{formatBytes(record.fileSize)}</span>
         <span className="font-mono text-xs text-ink-500">{shortHash(record.sha256Hash)}</span>
       </div>
-      {(onView || onVerify) && (
+      {(onView || onVerify || onDelete) && (
         <div className="mt-3 flex gap-2">
           {onView && (
             <Button size="sm" variant="outline" onClick={() => onView(record)}>
               <Eye className="h-3.5 w-3.5" /> View
             </Button>
           )}
+          <Button size="sm" variant="ghost" onClick={() => download(record)} disabled={downloading === record._id}>
+            <Download className="h-3.5 w-3.5" /> {downloading === record._id ? 'Downloading…' : 'Download'}
+          </Button>
           {onVerify && (
             <Button size="sm" variant="ghost" onClick={() => onVerify(record)}>
               Verify
+            </Button>
+          )}
+          {onDelete && (
+            <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onDelete(record)}>
+              <Trash2 className="h-3.5 w-3.5" /> Delete
             </Button>
           )}
         </div>
@@ -131,6 +183,7 @@ export function RecordViewerModal({
   onClose: () => void;
 }) {
   const { objectUrl, loading, error } = useRecordFile(record);
+  const { downloading, download } = useRecordDownload();
   const isPdf = record?.mimeType === 'application/pdf';
 
   return (
@@ -147,11 +200,18 @@ export function RecordViewerModal({
       footer={
         <div className="flex w-full items-center justify-between gap-3">
           <p className="text-[11px] text-ink-400">
-            Access is authorization-checked on every view. Downloading is not required to preview.
+            Access is authorization-checked on every view.
           </p>
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
+          <div className="flex gap-2">
+            {record && (
+              <Button size="sm" variant="outline" onClick={() => download(record)} disabled={downloading === record._id}>
+                <Download className="h-3.5 w-3.5" /> {downloading === record._id ? 'Downloading…' : 'Download'}
+              </Button>
+            )}
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+          </div>
         </div>
       }
     >
