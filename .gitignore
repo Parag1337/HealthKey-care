@@ -5,3 +5,7 @@ dist/
 .env.*
 .DS_Store
 npm-debug.log*
+.agent/skills/
+.agents/skills/
+.vscode/
+skills-lock.json
