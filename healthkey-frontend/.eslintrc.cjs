@@ -1,9 +1,0 @@
-{
-  "extends": "@typescript-eslint/recommended",
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
-  "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/explicit-module-boundary-types": "off"
-  }
-}

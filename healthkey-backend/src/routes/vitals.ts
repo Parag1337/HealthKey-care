@@ -1,16 +1,17 @@
 import express from 'express';
 import { z } from 'zod';
-import Vital from '../models/Vital';
-import { auth, AuthRequest, authorize } from '../middleware/auth';
+import Vital from '../models/Vital.js';
+import { auth, AuthRequest, authorize } from '../middleware/auth.js';
+import { requirePatientAccess } from '../middleware/access.js';
 
 const router = express.Router();
 
 const vitalSchema = z.object({
-  heartRate: z.number().optional(),
-  spo2: z.number().optional(),
-  bloodPressure: z.string().optional(),
-  temperature: z.number().optional(),
-  glucose: z.number().optional(),
+  heartRate: z.number().min(20).max(300).optional(),
+  spo2: z.number().min(0).max(100).optional(),
+  bloodPressure: z.string().max(30).optional(),
+  temperature: z.number().min(30).max(45).optional(),
+  glucose: z.number().min(0).max(1000).optional(),
   data: z.record(z.any()).optional()
 });
 
@@ -36,7 +37,7 @@ router.get('/my', auth, authorize('patient'), async (req: AuthRequest, res) => {
   }
 });
 
-router.get('/patient/:patientId', auth, authorize('doctor'), async (req: AuthRequest, res) => {
+router.get('/patient/:patientId', auth, requirePatientAccess('vitals'), async (req: AuthRequest, res) => {
   try {
     const vitals = await Vital.find({ patientId: req.params.patientId }).sort({ createdAt: -1 }).limit(50);
     res.json(vitals);
