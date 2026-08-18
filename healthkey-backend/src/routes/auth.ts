@@ -63,17 +63,29 @@ const doctorRegisterSchema = z
   .object({
     ...accountFields,
     confirmPassword: z.string().min(1, 'Please confirm your password.'),
-    professional: z.object({
-      professionalTitle: z.string().max(20).default('Dr.'),
-      specialization: z.string().min(2, 'Please enter your specialization.').max(80),
-      qualifications: z.array(z.string().min(1).max(120)).max(8).default([]),
-      yearsOfExperience: z.coerce.number().min(0).max(60).default(0),
-      registrationNumber: z.string().max(60).optional().or(z.literal('')),
-      registrationAuthority: z.string().max(120).optional().or(z.literal('')),
-      registrationState: z.string().max(60).optional().or(z.literal('')),
-      bio: z.string().max(600).optional().or(z.literal('')),
-      photoUrl: z.string().max(300).optional().or(z.literal(''))
-    }),
+    professional: z
+      .object({
+        professionalTitle: z.string().max(20).default('Dr.'),
+        specialization: z.string().max(80).default('General Medicine'),
+        qualifications: z.array(z.string().min(1).max(120)).max(8).default([]),
+        yearsOfExperience: z.coerce.number().min(0).max(60).default(0),
+        registrationNumber: z.string().max(60).optional().or(z.literal('')),
+        registrationAuthority: z.string().max(120).optional().or(z.literal('')),
+        registrationState: z.string().max(60).optional().or(z.literal('')),
+        bio: z.string().max(600).optional().or(z.literal('')),
+        photoUrl: z.string().max(300).optional().or(z.literal(''))
+      })
+      .default({
+        professionalTitle: 'Dr.',
+        specialization: 'General Medicine',
+        qualifications: [],
+        yearsOfExperience: 0,
+        registrationNumber: '',
+        registrationAuthority: '',
+        registrationState: '',
+        bio: '',
+        photoUrl: ''
+      }),
     practice: z
       .object({
         clinicName: z.string().max(120).optional().or(z.literal('')),
@@ -83,7 +95,7 @@ const doctorRegisterSchema = z
         consultationFee: z.coerce.number().min(0).max(100000).default(0),
         consultationTypes: z
           .array(z.enum(['in_person', 'online']))
-          .min(1, 'Select at least one consultation type.')
+          .max(2)
           .default(['in_person']),
         workingDays: z
           .array(
@@ -102,7 +114,15 @@ const doctorRegisterSchema = z
           .max(7)
           .default([])
       })
-      .default({})
+      .default({
+        clinicName: '',
+        clinicAddress: '',
+        clinicPhone: '',
+        city: '',
+        consultationFee: 0,
+        consultationTypes: ['in_person'],
+        workingDays: []
+      })
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: 'Passwords do not match.',
@@ -142,8 +162,9 @@ async function registerDoctorAccount(validated: any) {
     error.code = 409;
     throw error;
   }
-  const prof = validated.professional;
+  const prof = validated.professional || {};
   const practice = validated.practice || {};
+  const specialization = prof.specialization || 'General Medicine';
 
   const user = await User.create({
     name: prof.professionalTitle
@@ -153,17 +174,17 @@ async function registerDoctorAccount(validated: any) {
     password: validated.password,
     role: 'doctor',
     phone: validated.phone || undefined,
-    specialization: prof.specialization,
+    specialization,
     hospital: practice.clinicName || undefined,
     address: practice.clinicAddress || undefined
   });
 
   await DoctorProfile.create({
     userId: user._id,
-    professionalTitle: prof.professionalTitle,
-    specialization: prof.specialization,
-    qualifications: prof.qualifications,
-    yearsOfExperience: prof.yearsOfExperience,
+    professionalTitle: prof.professionalTitle || 'Dr.',
+    specialization,
+    qualifications: prof.qualifications || [],
+    yearsOfExperience: prof.yearsOfExperience || 0,
     registrationNumber: prof.registrationNumber || undefined,
     registrationAuthority: prof.registrationAuthority || undefined,
     registrationState: prof.registrationState || undefined,

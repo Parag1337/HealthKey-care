@@ -17,7 +17,7 @@ if (!jwtSecret) {
 
 export const env = {
   port: readInt('PORT', 5000),
-  mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/healthkey',
+  mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/healthkey',
   jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '30d',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',

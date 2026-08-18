@@ -13,13 +13,11 @@ import { PatientVitalsPage } from './pages/patient/VitalsPage';
 import { PatientAccessControlPage } from './pages/patient/AccessControlPage';
 import { PatientAuditPage } from './pages/patient/AuditPage';
 import { ConnectDoctorPage } from './pages/patient/ConnectDoctorPage';
-import { FindDoctorPage } from './pages/patient/FindDoctorPage';
-import { DoctorDetailPage } from './pages/patient/DoctorDetailPage';
-import { PatientAppointmentsPage } from './pages/patient/AppointmentsPage';
+import PatientProfilePage from './pages/patient/ProfilePage';
 import { ConnectPage } from './pages/ConnectPage';
 import { DoctorOverviewPage } from './pages/doctor/OverviewPage';
 import { DoctorAppointmentsPage } from './pages/doctor/AppointmentsPage';
-import { DoctorProfilePage } from './pages/doctor/ProfilePage';
+import DoctorProfilePage from './pages/doctor/ProfilePage';
 import { DoctorRequestsPage } from './pages/doctor/RequestsPage';
 import { DoctorPatientsPage } from './pages/doctor/PatientsPage';
 import { DoctorPatientDetailPage } from './pages/doctor/PatientDetailPage';
@@ -63,6 +61,7 @@ function App() {
         }
       >
         <Route index element={<Navigate to="overview" replace />} />
+        <Route path="profile" element={<PatientProfilePage />} />
         <Route path="overview" element={<PatientOverviewPage />} />
         <Route path="records" element={<PatientRecordsPage />} />
         <Route path="prescriptions" element={<PatientPrescriptionsPage />} />
@@ -70,9 +69,6 @@ function App() {
         <Route path="access" element={<PatientAccessControlPage />} />
         <Route path="audit" element={<PatientAuditPage />} />
         <Route path="connect" element={<ConnectDoctorPage />} />
-        <Route path="doctors" element={<FindDoctorPage />} />
-        <Route path="doctors/:id" element={<DoctorDetailPage />} />
-        <Route path="appointments" element={<PatientAppointmentsPage />} />
       </Route>
 
       <Route

@@ -4,10 +4,7 @@ import {
   Activity,
   ArrowRight,
   BatteryCharging,
-  CalendarCheck,
-  CalendarClock,
   CheckCircle2,
-  ChevronRight,
   ClipboardList,
   Cloud,
   FileCheck2,
@@ -23,7 +20,6 @@ import {
   Thermometer,
   UploadCloud,
   UserRound,
-  Users,
   X,
   Zap
 } from 'lucide-react';
@@ -55,37 +51,13 @@ function SectionHeading({
   );
 }
 
-const MOCK_DOCTORS = [
-  {
-    name: 'Dr. Ananya Sharma',
-    specialty: 'Cardiologist',
-    city: 'Pune',
-    exp: 12,
-    fee: 800,
-    verified: true,
-    next: 'Today · 5:30 PM',
-    initials: 'AS'
-  },
-  {
-    name: 'Dr. Rahul Mehta',
-    specialty: 'Dermatologist',
-    city: 'Mumbai',
-    exp: 9,
-    fee: 650,
-    verified: true,
-    next: 'Tomorrow · 10:00 AM',
-    initials: 'RM'
-  },
-  {
-    name: 'Dr. Priya Nair',
-    specialty: 'Pediatrician',
-    city: 'Bengaluru',
-    exp: 15,
-    fee: 900,
-    verified: true,
-    next: 'Wed · 2:15 PM',
-    initials: 'PN'
-  }
+const FEATURES = [
+  { icon: QrCode, label: 'QR-Based Access', desc: 'Grant doctors instant access by scanning your unique QR code' },
+  { icon: Lock, label: 'Complete Control', desc: 'Revoke access anytime and see full audit trails' },
+  { icon: ShieldCheck, label: 'Blockchain Verified', desc: 'Every record update is immutably recorded on blockchain' },
+  { icon: BatteryCharging, label: 'Real-Time Monitoring', desc: 'Connect wearables to track vitals continuously' },
+  { icon: Zap, label: 'AI Insights', desc: 'Get intelligent health summaries and risk detection' },
+  { icon: FileCheck2, label: 'Unified Records', desc: 'All prescriptions, scans, and reports in one secure place' }
 ];
 
 /* ------------------------------------------------------------------ */
@@ -93,8 +65,8 @@ const MOCK_DOCTORS = [
 /* ------------------------------------------------------------------ */
 
 const NAV_LINKS = [
-  { href: '#find-care', label: 'Find Care' },
   { href: '#how-it-works', label: 'How It Works' },
+  { href: '#features', label: 'Features' },
   { href: '#for-patients', label: 'For Patients' },
   { href: '#for-doctors', label: 'For Doctors' },
   { href: '#security', label: 'Security' }
@@ -322,8 +294,8 @@ export default function Landing() {
             </Reveal>
             <Reveal delay={160}>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-500">
-                Find the right care, manage your medical records, book appointments, and securely share
-                your health information with the people you choose.
+                Manage your medical records, grant doctors secure QR-based access, monitor your vitals
+                with connected devices, and enjoy AI-powered health insights — all on your terms.
               </p>
             </Reveal>
             <Reveal delay={240}>
@@ -332,14 +304,15 @@ export default function Landing() {
                   to="/register"
                   className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:bg-brand-700"
                 >
-                  <Stethoscope className="h-4 w-4" />
-                  Find a Doctor
+                  <UserRound className="h-4 w-4" />
+                  Patient Sign Up
                 </Link>
                 <Link
                   to="/register"
                   className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-6 py-3.5 text-sm font-semibold text-ink-700 shadow-soft transition-colors hover:border-ink-300 hover:bg-ink-50"
                 >
-                  Get Started
+                  <Stethoscope className="h-4 w-4" />
+                  Doctor Sign Up
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -375,10 +348,10 @@ export default function Landing() {
           />
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: <FilePlus2 className="h-5 w-5" />, title: 'Medical records', desc: 'Upload and organize reports, scans, and prescriptions from any provider.' },
-              { icon: <CalendarCheck className="h-5 w-5" />, title: 'Appointments', desc: 'Find doctors, check real availability, and book in under a minute.' },
-              { icon: <Share2 className="h-5 w-5" />, title: 'Consent-based sharing', desc: 'Share exactly what you want, with exactly who you choose, for a limited time.' },
-              { icon: <Activity className="h-5 w-5" />, title: 'Health monitoring', desc: 'See vitals from connected devices alongside your history, in one timeline.' }
+              { icon: <FilePlus2 className="h-5 w-5" />, title: 'Medical records', desc: 'Upload and organize reports, scans, and prescriptions securely.' },
+              { icon: <QrCode className="h-5 w-5" />, title: 'QR-based access', desc: 'Share access with doctors by scanning — no forms, instant consent.' },
+              { icon: <BatteryCharging className="h-5 w-5" />, title: 'Health monitoring', desc: 'Connect wearables to track vitals continuously in one timeline.' },
+              { icon: <Zap className="h-5 w-5" />, title: 'AI insights', desc: 'Get intelligent health summaries and early risk detection.' }
             ].map((f, i) => (
               <Reveal key={f.title} delay={i * 90}>
                 <div className="h-full rounded-2xl border border-ink-100 bg-ink-50/60 p-6 transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:bg-white hover:shadow-soft">
@@ -394,90 +367,47 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FIND CARE */}
-      <section id="find-care" className="py-20 lg:py-28">
+      {/* FEATURES */}
+      <section id="features" className="py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            eyebrow="Find Care"
-            title="Find the right doctor, without the phone tag."
-            subtitle="Search by specialty, location, or availability — then book the slot that works for you."
+            eyebrow="Core Features"
+            title="Everything you need for complete health control."
+            subtitle="Unified platform for managing records, granting access, monitoring vitals, and understanding your health."
           />
 
-          <Reveal delay={100}>
-            <div className="mx-auto mt-10 flex max-w-3xl items-center gap-2 rounded-2xl border border-ink-200 bg-white p-2 shadow-soft">
-              <div className="flex flex-1 items-center gap-2.5 px-3">
-                <Stethoscope className="h-4 w-4 text-ink-400" />
-                <span className="text-sm text-ink-400">Cardiologist in Pune…</span>
-              </div>
-              <span className="hidden rounded-xl bg-ink-50 px-3 py-2 text-xs font-medium text-ink-500 sm:inline">Specialty</span>
-              <span className="hidden rounded-xl bg-ink-50 px-3 py-2 text-xs font-medium text-ink-500 sm:inline">Location</span>
-              <span className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white">
-                Search <ArrowRight className="h-3.5 w-3.5" />
-              </span>
-            </div>
-          </Reveal>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {MOCK_DOCTORS.map((d, i) => (
-              <Reveal key={d.name} delay={i * 110}>
-                <div className="flex h-full flex-col rounded-2xl border border-ink-200/80 bg-white p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700">
-                      {d.initials}
-                    </span>
-                    <span className="flex-1">
-                      <span className="flex items-center gap-1.5 text-[15px] font-semibold text-ink-800">
-                        {d.name}
-                        {d.verified && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
-                      </span>
-                      <span className="block text-sm text-ink-500">{d.specialty}</span>
-                    </span>
-                    <span className="rounded-full bg-ink-50 px-2 py-0.5 text-[10px] font-medium text-ink-400">
-                      Illustrative
-                    </span>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-ink-500">
-                    <span>{d.exp} yrs experience</span>
-                    <span>📍 {d.city}</span>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between rounded-xl bg-ink-50 px-3.5 py-3">
-                    <span className="text-sm font-semibold text-ink-800">₹{d.fee}</span>
-                    <span className="text-xs text-ink-500">consultation</span>
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                      Next: {d.next}
-                    </span>
-                  </div>
-                  <span className="mt-4 inline-flex items-center justify-center gap-1 rounded-xl border border-ink-200 py-2.5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50">
-                    View Profile <ChevronRight className="h-4 w-4" />
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((f, i) => (
+              <Reveal key={f.label} delay={i * 80}>
+                <div className="h-full rounded-2xl border border-ink-100 bg-white p-6 transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-soft">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600/10 text-brand-700">
+                    <f.icon className="h-6 w-6" />
                   </span>
+                  <h3 className="mt-4 text-[15px] font-semibold text-ink-800">{f.label}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-500">{f.desc}</p>
                 </div>
               </Reveal>
             ))}
           </div>
-          <Reveal delay={120} className="mt-8 text-center">
-            <Link to="/register" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800">
-              Explore HealthKey care <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Reveal>
         </div>
       </section>
 
-      {/* APPOINTMENTS */}
+      {/* HOW IT WORKS */}
       <section id="how-it-works" className="border-y border-ink-100 bg-white py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="How It Works"
-            title="From search to appointment in four steps."
-            subtitle="No phone menus, no waiting rooms on hold — choose your time and confirm."
+            title="Patient control at every step."
+            subtitle="From storing your records to granting doctor access — you're in command."
           />
           <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-y-4">
-            {['Find Doctor', 'View Profile', 'Choose Time', 'Confirm'].map((s, i, arr) => (
+            {['Upload Records', 'Grant Access', 'Set Permissions', 'Track Access'].map((s, i, arr) => (
               <span key={s} className="flex items-center">
                 <span className="flex min-w-[128px] flex-col items-center gap-1.5">
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
                     {i + 1}
                   </span>
-                  <span className="text-[13px] font-medium text-ink-600">{s}</span>
+                  <span className="text-center text-[13px] font-medium text-ink-600">{s}</span>
                 </span>
                 {i < arr.length - 1 && (
                   <ArrowRight className="mx-3 h-4 w-4 shrink-0 text-ink-300 sm:mx-5" />
@@ -491,22 +421,21 @@ export default function Landing() {
               <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                 <CheckCircle2 className="h-6 w-6" />
               </span>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-brand-600">Appointment confirmed</p>
+              <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-brand-600">Consent Confirmed</p>
               <p className="mt-2 font-display text-2xl font-semibold text-ink-800">Dr. Ananya Sharma</p>
-              <p className="text-sm text-ink-500">Cardiology</p>
-              <div className="mt-6 flex items-center justify-center gap-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-wide text-ink-400">Day</p>
-                  <p className="mt-0.5 text-sm font-semibold text-ink-800">Monday · 17 Aug</p>
+              <p className="text-sm text-ink-500">Cardiology · Verified</p>
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-[13px]">
+                  <span className="text-ink-600">Medical records</span>
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                 </div>
-                <span className="h-8 w-px bg-ink-200" />
-                <div>
-                  <p className="text-[11px] uppercase tracking-wide text-ink-400">Time</p>
-                  <p className="mt-0.5 text-sm font-semibold text-ink-800">4:30 PM</p>
+                <div className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-[13px]">
+                  <span className="text-ink-600">Prescriptions</span>
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                 </div>
               </div>
-              <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-ink-100 px-3 py-1 text-xs font-medium text-ink-600">
-                <Users className="h-3.5 w-3.5" /> In-person consultation
+              <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+                <Zap className="h-3.5 w-3.5" /> Expires: 24 hours
               </p>
             </div>
           </Reveal>
@@ -704,17 +633,17 @@ export default function Landing() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="For Patients"
-            title="Everything you need to manage your care."
-            subtitle="One account for appointments, records, prescriptions, vitals, and the people who care for you."
+            title="Your medical life, organized and controlled."
+            subtitle="Unified access to your records, vitals, permissions, and health insights."
           />
           <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
             {[
-              { icon: <CalendarClock className="h-5 w-5" />, t: 'Appointments', d: 'Book, reschedule, and track visits.' },
-              { icon: <FilePlus2 className="h-5 w-5" />, t: 'Medical records', d: 'Your reports, always at hand.' },
-              { icon: <ClipboardList className="h-5 w-5" />, t: 'Prescriptions', d: 'Medication history, ready to follow.' },
-              { icon: <Activity className="h-5 w-5" />, t: 'Vitals', d: 'Trends from connected devices.' },
-              { icon: <Share2 className="h-5 w-5" />, t: 'Consent', d: 'Grant and revoke access in one tap.' },
-              { icon: <Zap className="h-5 w-5" />, t: 'Health insights', d: 'Gentle observations, not diagnoses.' }
+              { icon: <FilePlus2 className="h-5 w-5" />, t: 'Medical records', d: 'Upload, organize, and access all your reports in one place.' },
+              { icon: <QrCode className="h-5 w-5" />, t: 'QR-based access', d: 'Share with doctors instantly — just scan and set permissions.' },
+              { icon: <ClipboardList className="h-5 w-5" />, t: 'Prescriptions', d: 'Track all medications and follow your doctors instructions.'},
+              { icon: <Activity className="h-5 w-5" />, t: 'Connected vitals', d: 'Monitor heart rate, SpO₂, blood pressure from wearables.' },
+              { icon: <Share2 className="h-5 w-5" />, t: 'Consent control', d: 'Grant, manage, and revoke doctor access anytime.' },
+              { icon: <Zap className="h-5 w-5" />, t: 'AI insights', d: 'Get intelligent health summaries and early alerts.' }
             ].map((f, i) => (
               <Reveal key={f.t} delay={(i % 3) * 90}>
                 <div className="h-full rounded-2xl border border-ink-100 p-5 transition-colors hover:border-brand-200 hover:bg-ink-50/40">
@@ -743,22 +672,22 @@ export default function Landing() {
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">For Doctors</p>
               <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink-800 sm:text-4xl">
-                Spend more time caring for patients.
+                Secure, instant access to patient records.
               </h2>
               <p className="mt-4 text-base leading-relaxed text-ink-500">
-                Manage your presence, your schedule, and the records your patients authorize —
-                without chasing documents or permissions.
+                Create your profile, get a unique QR code, and let patients grant you access to their
+                medical records — no paperwork, no delays, complete audit trail.
               </p>
             </Reveal>
             <Reveal delay={100}>
               <ul className="mt-8 grid gap-3 sm:grid-cols-2">
                 {[
-                  'Professional profile',
-                  'Set your availability',
-                  'Appointments & reminders',
-                  'Authorized patient records',
-                  'Prescriptions & vitals',
-                  'Complete audit history'
+                  'Professional profile & QR',
+                  'Patient record access',
+                  'View prescriptions & vitals',
+                  'Upload reports securely',
+                  'Complete access audit trail',
+                  'AI-assisted notes'
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2.5 rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm font-medium text-ink-700 shadow-soft">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-600" />
@@ -772,7 +701,7 @@ export default function Landing() {
                 to="/register"
                 className="mt-8 inline-flex items-center gap-2 rounded-xl border border-ink-800 bg-ink-800 px-6 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-ink-700"
               >
-                Join as a Doctor <ArrowRight className="h-4 w-4" />
+                Doctor Sign Up <ArrowRight className="h-4 w-4" />
               </Link>
             </Reveal>
           </div>
@@ -780,34 +709,38 @@ export default function Landing() {
           <Reveal delay={140}>
             <div className="mx-auto max-w-md rounded-3xl border border-ink-200 bg-white p-7 shadow-lift">
               <div className="flex items-center justify-between">
-                <p className="text-[13px] font-semibold text-ink-800">Today’s schedule</p>
+                <p className="text-[13px] font-semibold text-ink-800">Your QR Code</p>
                 <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                  <CalendarCheck className="h-3.5 w-3.5" /> 5 appointments
+                  <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-emerald-500" /> Active
                 </span>
               </div>
-              <div className="mt-4 space-y-2.5">
-                {[
-                  { time: '09:00', name: 'Kavita Rao', type: 'In-person', done: true },
-                  { time: '10:30', name: 'Rohan Desai', type: 'Online', done: true },
-                  { time: '12:00', name: 'Meera Iyer', type: 'In-person', done: false },
-                  { time: '16:30', name: 'Arjun Menon', type: 'New patient', done: false }
-                ].map((a) => (
-                  <div key={a.time} className="flex items-center gap-3 rounded-xl bg-ink-50 px-3.5 py-2.5">
-                    <span className="w-12 text-xs font-semibold text-ink-600">{a.time}</span>
-                    <span className="flex-1 text-sm text-ink-700">{a.name}</span>
-                    <span
-                      className={cn(
-                        'rounded-full px-2 py-0.5 text-[10px] font-medium',
-                        a.done ? 'bg-ink-100 text-ink-400' : 'bg-brand-50 text-brand-700'
-                      )}
-                    >
-                      {a.type}
-                    </span>
-                  </div>
-                ))}
+              <div className="mt-5 flex h-40 items-center justify-center rounded-2xl border-2 border-ink-200 bg-white p-4">
+                <div className="space-y-1 rounded-lg border-4 border-ink-800 bg-white p-3" aria-hidden>
+                  {[0, 1, 2, 3, 4, 5, 6].map((r) => (
+                    <div key={r} className="flex gap-1">
+                      {[0, 1, 2, 3, 4, 5, 6].map((c) => {
+                        const on = (r * 7 + c * 3 + ((r + c) % 2) * 2) % 5 < 3;
+                        return <span key={c} className={cn('h-2 w-2 rounded-[2px]', on ? 'bg-ink-800' : 'bg-ink-100')} />;
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="mt-5 text-xs text-ink-600">
+                <strong>Patients scan this.</strong> They authorize access to their medical records.
+              </p>
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center justify-between rounded-lg bg-ink-50 px-3 py-2 text-[13px]">
+                  <span className="text-ink-600">Access Requests</span>
+                  <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">3</span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-ink-50 px-3 py-2 text-[13px]">
+                  <span className="text-ink-600">Active Consents</span>
+                  <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">2</span>
+                </div>
               </div>
               <p className="mt-4 text-center text-[11px] text-ink-400">
-                Illustrative schedule preview.
+                Your QR code is unique and patient-safe.
               </p>
             </div>
           </Reveal>
@@ -961,13 +894,13 @@ export default function Landing() {
                 to="/register"
                 className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand-800 shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-50"
               >
-                Create Patient Account <ArrowRight className="h-4 w-4" />
+                Patient Sign Up <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/register"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
               >
-                <Stethoscope className="h-4 w-4" /> Join as a Doctor
+                <Stethoscope className="h-4 w-4" /> Doctor Sign Up
               </Link>
             </div>
           </Reveal>
@@ -981,16 +914,16 @@ export default function Landing() {
             <div>
               <Logo />
               <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-500">
-                Find the right care, manage your records, and control who sees your health information.
+                Manage your medical records, grant secure access to doctors, monitor vitals, and stay in control of your health data.
               </p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">Product</p>
               <ul className="mt-3 space-y-2 text-sm">
-                <li><a href="#find-care" className="text-ink-600 hover:text-brand-700">Find Care</a></li>
-                <li><a href="#how-it-works" className="text-ink-600 hover:text-brand-700">Appointments</a></li>
+                <li><a href="#how-it-works" className="text-ink-600 hover:text-brand-700">How It Works</a></li>
+                <li><a href="#features" className="text-ink-600 hover:text-brand-700">Features</a></li>
                 <li><Link to="/register" className="text-ink-600 hover:text-brand-700">Medical Records</Link></li>
-                <li><Link to="/register" className="text-ink-600 hover:text-brand-700">For Doctors</Link></li>
+                <li><a href="#for-doctors" className="text-ink-600 hover:text-brand-700">For Doctors</a></li>
               </ul>
             </div>
             <div>

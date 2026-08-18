@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, CalendarClock, ClipboardList, Lock, Mail, Stethoscope, UserRound } from 'lucide-react';
+import { ArrowRight, ClipboardList, Lock, Mail, Stethoscope, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getErrorMessage } from '../lib/api';
 import { Button } from '../components/ui/Button';
@@ -64,16 +64,16 @@ export default function DoctorLogin() {
 
           <div>
             <h1 className="max-w-md font-display text-4xl font-semibold leading-[1.15] text-white">
-              Care for your patients, without the paperwork.
+              Secure patient records at your fingertips.
             </h1>
             <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
-              Manage your schedule, your availability, and the records your patients authorize.
+              Get instant access to authorized patient records, track consent, and practice medicine with full transparency.
             </p>
             <ul className="mt-8 space-y-3">
               {[
-                { icon: <CalendarClock className="h-4 w-4" />, t: 'Appointments, in one view' },
-                { icon: <ClipboardList className="h-4 w-4" />, t: 'Authorized patient records' },
-                { icon: <UserRound className="h-4 w-4" />, t: 'A professional profile patients trust' }
+                { icon: <Lock className="h-4 w-4" />, t: 'QR-based patient access' },
+                { icon: <ClipboardList className="h-4 w-4" />, t: 'Complete patient records' },
+                { icon: <UserRound className="h-4 w-4" />, t: 'Full audit trail for transparency' }
               ].map((f) => (
                 <li key={f.t} className="flex items-center gap-2.5 text-sm text-white/90">
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10">{f.icon}</span>
@@ -101,7 +101,7 @@ export default function DoctorLogin() {
             Welcome back, Doctor.
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-ink-500">
-            Manage your practice, appointments, and authorized patient care.
+            Access patient records, view consents, and manage your secure practice.
           </p>
 
           {error && (

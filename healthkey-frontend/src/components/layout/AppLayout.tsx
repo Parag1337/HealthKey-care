@@ -12,7 +12,6 @@ import {
   QrCode,
   ScrollText,
   ShieldCheck,
-  Stethoscope,
   UserCog,
   Users,
   X,
@@ -26,8 +25,6 @@ import { Logo } from '../brand/Logo';
 
 const patientNav = [
   { to: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
-  { to: '/dashboard/doctors', label: 'Find a Doctor', icon: Stethoscope },
-  { to: '/dashboard/appointments', label: 'Appointments', icon: CalendarClock },
   { to: '/dashboard/records', label: 'Medical Records', icon: FileText },
   { to: '/dashboard/prescriptions', label: 'Prescriptions', icon: ScrollText },
   { to: '/dashboard/vitals', label: 'Vitals', icon: HeartPulse },
@@ -138,10 +135,10 @@ function BottomNav() {
   const items = isPatient
     ? [
         { to: '/dashboard/overview', label: 'Home', icon: Home },
-        { to: '/dashboard/doctors', label: 'Find', icon: Stethoscope },
-        { to: '/dashboard/appointments', label: 'Appointments', icon: CalendarClock },
         { to: '/dashboard/records', label: 'Records', icon: FileText },
-        { to: '/dashboard/access', label: 'Consent', icon: ShieldCheck }
+        { to: '/dashboard/connect', label: 'Connect', icon: QrCode },
+        { to: '/dashboard/access', label: 'Consent', icon: ShieldCheck },
+        { to: '/dashboard/audit', label: 'Audit', icon: FileClock }
       ]
     : [
         { to: '/doctor/overview', label: 'Home', icon: Home },
